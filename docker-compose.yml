@@ -1,0 +1,48 @@
+# ExoSeer — one-command local stack: `docker compose up --build`
+#
+# backend  : the FastAPI + scientific engine, built from ./backend/Dockerfile.
+#            The container listens on 7860 (the port HF Spaces expects); we map it
+#            to host 8000 so the local setup matches NEXT_PUBLIC_API_BASE / the docs.
+# frontend : the Next.js app, run straight from source in a Node container.
+#
+# Compose no longer needs a top-level `version:` key (current spec ignores it).
+
+services:
+  backend:
+    build: ./backend
+    # host:container — reach the API at http://localhost:8000 while the container
+    # serves on 7860 internally (same as on Hugging Face Spaces).
+    ports:
+      - "8000:7860"
+    environment:
+      # Allow the local frontend origin through CORS.
+      CORS_ORIGINS: "http://localhost:3000"
+      EXOSEER_CACHE_DIR: "/app/cache"
+    volumes:
+      # Persist the downloaded light-curve cache across container restarts.
+      - backend-cache:/app/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:7860/healthz', timeout=5).status == 200 else sys.exit(1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-slim
+    working_dir: /app
+    volumes:
+      # Mount the frontend source; node_modules is installed inside the container.
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- -p 3000 -H 0.0.0.0"
+    ports:
+      - "3000:3000"
+    environment:
+      # The browser talks to the backend at the host-mapped port.
+      NEXT_PUBLIC_API_BASE: "http://localhost:8000"
+    depends_on:
+      - backend
+
+volumes:
+  backend-cache:

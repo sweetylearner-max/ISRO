@@ -1,0 +1,31 @@
+# ExoSeer backend + engine dependencies (Python 3.11).
+# Numerics are pinned tightly because transitleastsquares + numba + batman are
+# version-sensitive; the astronomy stack floors are kept loose so the latest
+# compatible wheels install. Regenerate exact pins with `pip freeze` after a
+# clean install if you need full reproducibility.
+
+# --- API ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+python-multipart==0.0.20
+
+# --- numerics (the compatibility fulcrum for numba/TLS) ---
+numpy==1.26.4
+scipy==1.13.1
+pandas==2.2.2
+
+# --- ML / vetting ---
+scikit-learn==1.5.2
+xgboost==2.1.3
+shap>=0.44,<0.47
+joblib==1.4.2
+
+# --- astronomy engine ---
+astropy>=6.0,<7.0
+astroquery>=0.4.7
+lightkurve>=2.4,<3.0
+transitleastsquares>=1.0.31
+batman-package>=2.4.9
+numba>=0.59,<0.61

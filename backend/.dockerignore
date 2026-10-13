@@ -1,0 +1,42 @@
+# Keep the Docker build context small and reproducible: exclude local dev cruft,
+# virtualenvs, caches, and secrets. The image installs deps from requirements.txt
+# and copies only app/, models/, and data/.
+
+# Python virtualenvs
+.venv/
+venv/
+env/
+
+# Byte-compiled / cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Downloaded light-curve cache (rebuilt/warmed at runtime)
+cache/*
+!cache/.gitkeep
+
+# Tests are not needed in the runtime image
+tests/
+
+# Secrets and local env (app is fully functional with demo-safe defaults)
+.env
+.env.*
+!.env.example
+
+# Editor / OS noise
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Docker artifacts themselves
+Dockerfile
+.dockerignore

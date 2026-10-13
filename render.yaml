@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: exoseer-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: EXOSEER_CACHE_DIR
+        value: /app/cache
+      - key: EXOSEER_LLM_PROVIDER
+        value: none
